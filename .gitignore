@@ -1,0 +1,42 @@
+﻿# OS / editors
+.DS_Store
+Thumbs.db
+*.lnk
+
+# Node / Python typical
+node_modules/
+dist/
+build/
+__pycache__/
+*.pyc
+
+# VS Code (разрешаем только нужные файлы)
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json
+
+# --- YOUR BIG RUNTIME / CACHE / CHAT FOLDERS (do NOT commit) ---
+**/.tmp/
+**/_LIVE/
+**/_COLLECTED_FS/
+**/workspaceStorage/
+
+# Browser / Electron caches
+**/Cache/
+**/Code Cache/
+**/GPUCache/
+**/IndexedDB/
+**/Local Storage/
+**/Session Storage/
+**/Service Worker/
+**/Network/
+
+# Logs / DB / bulky artifacts
+**/Sentry/
+**/logs/
+**/*.log
+**/*.ldb
+**/*.sqlite
+**/*.sqlite-journal
+**/*.jsonl
