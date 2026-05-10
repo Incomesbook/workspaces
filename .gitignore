@@ -60,3 +60,7 @@ __pycache__/
 
 # Generated inventory snapshots with possible local/runtime paths
 inventory_*.txt
+
+# Local generated safety reports - keep on this PC only
+02_PROJECTS_INDEX/PRE_PUSH_SAFETY_CHECK_*.md
+02_PROJECTS_INDEX/J_WORKSPACE_DRY_RUN_*.md
