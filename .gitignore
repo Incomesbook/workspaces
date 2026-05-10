@@ -35,3 +35,25 @@ __pycache__/
 **/*.sqlite
 **/*.sqlite-journal
 **/*.jsonl
+
+# Secrets and local credentials must stay out of GitHub
+**/.env
+**/.env.*
+**/api_keys.txt
+**/*secret*
+**/*secrets*
+**/*credential*
+**/*credentials*
+**/*token*
+**/*password*
+**/S09_Shared_Private/
+
+# Bulky generated media / archives
+**/*.mp4
+**/*.mkv
+**/*.mov
+**/*.avi
+**/*.webm
+**/*.zip
+**/*.7z
+**/*.rar
