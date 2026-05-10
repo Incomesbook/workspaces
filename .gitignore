@@ -57,3 +57,6 @@ __pycache__/
 **/*.zip
 **/*.7z
 **/*.rar
+
+# Generated inventory snapshots with possible local/runtime paths
+inventory_*.txt
