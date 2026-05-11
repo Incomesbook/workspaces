@@ -1,6 +1,6 @@
 ﻿# Current Status Map
 
-Generated: 2026-05-11 08:59:02
+Generated: 2026-05-11 09:09:17
 
 ## Done
 
@@ -11,14 +11,14 @@ Generated: 2026-05-11 08:59:02
 - Global AI Chat Backup Strategy Phase completed.
 - Full Project Storage Restore Manifest Phase completed.
 - Archive Dry-Run Plan Phase completed.
-- Encrypted archive candidate CSV created locally.
-- Git LFS review CSV created locally.
-- Local archive-only CSV created locally.
-- Restore test checklist created.
+- Archive Tool + Capacity Readiness Phase completed.
+- S30/S40 archive/restore folders are prepared.
+- Git LFS availability checked.
+- 7-Zip availability checked.
 
 ## Current latest phase
 
-Archive Dry-Run Plan completed.
+Archive Tool + Capacity Readiness completed.
 
 ## Not done yet
 
@@ -30,11 +30,4 @@ Archive Dry-Run Plan completed.
 
 ## Next
 
-Choose archive method:
-1. 7z AES-256
-2. VeraCrypt
-3. Cryptomator
-4. rclone crypt
-5. offline drive backup
-
-Then create encrypted archive dry-run verification script.
+Encrypted archive sample test + split-plan dry-run.
