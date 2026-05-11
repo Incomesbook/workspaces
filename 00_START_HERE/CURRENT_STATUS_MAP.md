@@ -1,6 +1,6 @@
 ﻿# Current Status Map
 
-Generated: 2026-05-11 07:52:28
+Generated: 2026-05-11 08:48:53
 
 ## Done
 
@@ -8,16 +8,17 @@ Generated: 2026-05-11 07:52:28
 - G01_P03 is closed.
 - G01_P01 is closed.
 - G01_P02 is closed after FIX.
-- Obsolete G01_P02 failed CleanSource artifacts were archived.
 - Global AI Chat Backup Strategy Phase completed.
-- AI/chat roots metadata index created.
-- AI chat backup strategy matrix created.
-- AI chat restore plan created.
-- AI chat gitignore/exclude policy created.
+- Full Project Storage Restore Manifest Phase completed.
+- Detailed storage/restore manifest created locally.
+- Storage policy created.
+- Git LFS candidate plan created.
+- Encrypted archive candidate plan created.
+- Local archive-only plan created.
 
 ## Current latest phase
 
-Global AI Chat Backup Strategy completed as metadata/strategy only.
+Full Project Storage Restore Manifest completed as policy/manifest only.
 
 ## Not done yet
 
@@ -29,4 +30,8 @@ Global AI Chat Backup Strategy completed as metadata/strategy only.
 
 ## Next
 
-Choose and implement private encrypted archive phase or scheduled sync dry-run phase.
+Create archive dry-run plan, then choose:
+1. encrypted archive destination/method
+2. Git LFS candidate approval
+3. weekly/biweekly sync dry-run
+4. restore test
