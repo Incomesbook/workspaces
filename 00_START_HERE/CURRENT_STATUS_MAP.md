@@ -1,6 +1,6 @@
 ﻿# Current Status Map
 
-Generated: 2026-05-11 08:48:53
+Generated: 2026-05-11 08:59:02
 
 ## Done
 
@@ -10,15 +10,15 @@ Generated: 2026-05-11 08:48:53
 - G01_P02 is closed after FIX.
 - Global AI Chat Backup Strategy Phase completed.
 - Full Project Storage Restore Manifest Phase completed.
-- Detailed storage/restore manifest created locally.
-- Storage policy created.
-- Git LFS candidate plan created.
-- Encrypted archive candidate plan created.
-- Local archive-only plan created.
+- Archive Dry-Run Plan Phase completed.
+- Encrypted archive candidate CSV created locally.
+- Git LFS review CSV created locally.
+- Local archive-only CSV created locally.
+- Restore test checklist created.
 
 ## Current latest phase
 
-Full Project Storage Restore Manifest completed as policy/manifest only.
+Archive Dry-Run Plan completed.
 
 ## Not done yet
 
@@ -30,8 +30,11 @@ Full Project Storage Restore Manifest completed as policy/manifest only.
 
 ## Next
 
-Create archive dry-run plan, then choose:
-1. encrypted archive destination/method
-2. Git LFS candidate approval
-3. weekly/biweekly sync dry-run
-4. restore test
+Choose archive method:
+1. 7z AES-256
+2. VeraCrypt
+3. Cryptomator
+4. rclone crypt
+5. offline drive backup
+
+Then create encrypted archive dry-run verification script.
