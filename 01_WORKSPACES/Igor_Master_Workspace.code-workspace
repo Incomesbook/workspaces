@@ -43,6 +43,10 @@
                     {
                         "name":  "G01_P01_PocketOption_CleanSource",
                         "path":  "J:\\Setup_VcCode_Workspace\\S20_Projects\\G01_P01_PocketOption_CleanSource"
+                    },
+                    {
+                        "name":  "G01_P02_TVClaude_CleanSource",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S20_Projects\\G01_P02_TVClaude_CleanSource"
                     }
                 ],
     "settings":  {
