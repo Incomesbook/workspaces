@@ -35,6 +35,10 @@
                     {
                         "name":  "08_LiveControl_CleanSource_J",
                         "path":  "J:\\Setup_VcCode_Workspace\\S20_Projects\\LiveControl_CleanSource"
+                    },
+                    {
+                        "name":  "G01_P03_MarketAgent_CleanSource",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S20_Projects\\G01_P03_MarketAgent_CleanSource"
                     }
                 ],
     "settings":  {
