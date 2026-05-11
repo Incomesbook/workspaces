@@ -1,6 +1,6 @@
 ﻿# Current Status Map
 
-Generated: 2026-05-11 09:27:10
+Generated: 2026-05-11 09:47:45
 
 ## Done
 
@@ -14,14 +14,16 @@ Generated: 2026-05-11 09:27:10
 - Archive Tool + Capacity Readiness Phase completed.
 - 7-Zip installed/found and sample encryption tested.
 - Encrypted archive split-plan dry-run created.
+- Encrypted archive missing-source preflight completed.
+- Tiny real shard candidate plan created.
 
 ## Current latest phase
 
-Encrypted Archive Sample Test + Split Plan completed.
+Encrypted Archive Preflight + Tiny Shard Plan completed.
 
 ## Not done yet
 
-- Raw AI chats are not archived.
+- Raw AI chats are not fully archived.
 - Git LFS is not enabled.
 - Full encrypted archive is not created.
 - Weekly/biweekly sync is not enabled.
@@ -29,4 +31,4 @@ Encrypted Archive Sample Test + Split Plan completed.
 
 ## Next
 
-Encrypted archive missing-source dry-run + first tiny real shard test.
+Run one tiny real encrypted shard test with local password prompt.
