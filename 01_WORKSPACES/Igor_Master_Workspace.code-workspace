@@ -1,0 +1,62 @@
+﻿{
+    "folders":  [
+                    {
+                        "name":  "00_MAIN_workspaces_repo",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S10_GitHub\\workspaces"
+                    },
+                    {
+                        "name":  "01_Shared_VSCode",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S02_Shared_VSCode"
+                    },
+                    {
+                        "name":  "02_Shared_Automation_PROTECTED",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S06_Shared_Automation"
+                    },
+                    {
+                        "name":  "03_Shared_Global_AI_Chats",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S08_Shared_Global_AI_Chats"
+                    },
+                    {
+                        "name":  "04_AI_CHATS_COMMON",
+                        "path":  "J:\\_AI_CHATS_ОБЩИЕ"
+                    },
+                    {
+                        "name":  "05_Canada_Tax_Optimizer_C",
+                        "path":  "C:\\Users\\IgorK\\OneDrive\\Рабочий стол\\ПРОЕКТЫ\\Canada_Tax_Optimizer"
+                    },
+                    {
+                        "name":  "06_LiveControl_C_READ_ONLY_FOR_NOW",
+                        "path":  "C:\\Users\\IgorK\\OneDrive\\Рабочий стол\\ПРОЕКТЫ\\LiveControl"
+                    },
+                    {
+                        "name":  "07_iNCOMEBOOK_Excel_Legacy",
+                        "path":  "C:\\Users\\IgorK\\OneDrive\\iNCOMEBOOK"
+                    }
+                ],
+    "settings":  {
+                     "search.exclude":  {
+                                            "**/.git":  true,
+                                            "**/.venv":  true,
+                                            "**/node_modules":  true,
+                                            "**/_raw_external_ai_sessions":  true,
+                                            "**/*_Local_CHAT_Hictory":  true,
+                                            "**/_diagnostics":  true,
+                                            "**/ARCHIVES":  true,
+                                            "**/*.sqlite":  true,
+                                            "**/*.jsonl":  true,
+                                            "**/*.mp4":  true,
+                                            "**/*.exe":  true,
+                                            "**/*.7z":  true,
+                                            "**/*.zip":  true
+                                        },
+                     "files.watcherExclude":  {
+                                                  "**/.git/**":  true,
+                                                  "**/.venv/**":  true,
+                                                  "**/node_modules/**":  true,
+                                                  "**/_raw_external_ai_sessions/**":  true,
+                                                  "**/*_Local_CHAT_Hictory/**":  true,
+                                                  "**/_diagnostics/**":  true,
+                                                  "**/ARCHIVES/**":  true
+                                              }
+                 }
+}
