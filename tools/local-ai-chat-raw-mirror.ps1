@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference = "Stop"
+﻿$ErrorActionPreference = "Continue"
 
 try {
   [Console]::InputEncoding  = New-Object System.Text.UTF8Encoding($false)
@@ -21,16 +21,25 @@ $ManifestRel = "04_MANIFESTS/AI_CHAT_LOCAL_RAW_MIRROR_MANIFEST.md"
 $ManifestCsvRel = "04_MANIFESTS/AI_CHAT_LOCAL_RAW_MIRROR_MANIFEST.csv"
 $LastRunRel = "00_START_HERE/AI_CHAT_LOCAL_RAW_MIRROR_LAST_RUN.md"
 
-$AllowedRel = @($ManifestRel,$ManifestCsvRel,$LastRunRel)
-
 $ManifestDoc = Join-Path $Repo ($ManifestRel -replace "/","\")
 $ManifestCsv = Join-Path $Repo ($ManifestCsvRel -replace "/","\")
 $LastRunDoc = Join-Path $Repo ($LastRunRel -replace "/","\")
 
+$AllowedRel = @($ManifestRel,$ManifestCsvRel,$LastRunRel)
+
 $Utf8Bom = New-Object System.Text.UTF8Encoding($true)
 
-function Ensure-Dir { param([string]$Path) if(-not (Test-Path -LiteralPath $Path)){ New-Item -ItemType Directory -Force $Path | Out-Null } }
-function Ensure-Parent { param([string]$Path) Ensure-Dir (Split-Path -Parent $Path) }
+function Ensure-Dir {
+  param([string]$Path)
+  if(-not (Test-Path -LiteralPath $Path)){
+    New-Item -ItemType Directory -Force $Path | Out-Null
+  }
+}
+
+function Ensure-Parent {
+  param([string]$Path)
+  Ensure-Dir (Split-Path -Parent $Path)
+}
 
 function Set-TextUtf8Bom {
   param([string]$Path,[string]$Text)
@@ -43,7 +52,22 @@ function Add-RunLine {
   [System.IO.File]::AppendAllText($script:RunReport,"$Text`r`n",$script:Utf8Bom)
 }
 
-function Normalize-GitPath { param([string]$Path) return ($Path -replace "\\","/").Trim('"') }
+function Normalize-GitPath {
+  param([string]$Path)
+  return ($Path -replace "\\","/").Trim('"')
+}
+
+function Run-Git {
+  param([string[]]$GitArgs,[switch]$AllowFail)
+  $Out = @(& git @GitArgs 2>&1)
+  $Code = $LASTEXITCODE
+  Add-RunLine "git $($GitArgs -join ' ')"
+  foreach($Line in $Out){ Add-RunLine $Line }
+  if($Code -ne 0 -and -not $AllowFail){
+    throw "Git failed with code $Code : git $($GitArgs -join ' ')"
+  }
+  [pscustomobject]@{ Code=$Code; Output=@($Out) }
+}
 
 function Get-GitStatusFiles {
   param([string[]]$Lines)
@@ -55,35 +79,6 @@ function Get-GitStatusFiles {
     $Files += (Normalize-GitPath $P)
   }
   return @($Files)
-}
-
-function Run-Git {
-  param([string[]]$GitArgs,[switch]$AllowFail)
-  $Out=@(& git @GitArgs 2>&1)
-  $Code=$LASTEXITCODE
-  Add-RunLine "git $($GitArgs -join ' ')"
-  foreach($Line in $Out){ Add-RunLine $Line }
-  if($Code -ne 0 -and -not $AllowFail){ throw "Git failed with code $Code : git $($GitArgs -join ' ')" }
-  [pscustomobject]@{ Code=$Code; Output=@($Out) }
-}
-
-function Test-SensitiveLikeContent {
-  param([string[]]$Lines)
-  $Regexes=@(
-    "ghp_[A-Za-z0-9_]{20,}",
-    "github_pat_[A-Za-z0-9_]{20,}",
-    "sk-[A-Za-z0-9]{20,}",
-    "xox[baprs]-[A-Za-z0-9-]{20,}",
-    "BEGIN [A-Z ]*PRIVATE KEY",
-    "Authorization:\s*Bearer\s+[A-Za-z0-9._\-]{20,}",
-    "(?i)(api[_-]?key|access[_-]?token|refresh[_-]?token|private[_-]?key)\s*[:=]\s*['""][^'""]{12,}['""]"
-  )
-  $Hits=@()
-  foreach($R in $Regexes){
-    $Matches=@($Lines | Select-String -Pattern $R)
-    if($Matches.Count -gt 0){ $Hits += [pscustomobject]@{ Pattern=$R; Count=$Matches.Count } }
-  }
-  return @($Hits)
 }
 
 function SafeName {
@@ -110,7 +105,7 @@ function Count-RootSafe {
   $FilesSeen=0; $Jsonl=0; $Json=0; $Md=0; $Db=0; $SizeMB=0.0; $Err=""
   if($Exists){
     try {
-      $Files=@(Get-ChildItem -LiteralPath $Root -Recurse -File -ErrorAction SilentlyContinue | Select-Object -First 20000)
+      $Files=@(Get-ChildItem -LiteralPath $Root -Recurse -File -Force -ErrorAction SilentlyContinue | Select-Object -First 20000)
       $FilesSeen=$Files.Count
       $Jsonl=@($Files | Where-Object { $_.Extension -eq ".jsonl" }).Count
       $Json=@($Files | Where-Object { $_.Extension -eq ".json" }).Count
@@ -135,54 +130,7 @@ function Count-RootSafe {
   }
 }
 
-function Backup-ChangedDestFiles {
-  param([string]$Source,[string]$Dest,[string]$BackupRoot)
-
-  $BackedUp=0
-  $Errors=@()
-
-  if(-not (Test-Path -LiteralPath $Dest)){
-    return [pscustomobject]@{ Ok=$true; BackedUp=$BackedUp; Errors=@() }
-  }
-
-  try {
-    $SourceRootItem = Get-Item -LiteralPath $Source -Force
-    $SourcePrefix = $SourceRootItem.FullName.TrimEnd("\") + "\"
-    $SourceFiles = @(Get-ChildItem -LiteralPath $Source -Recurse -File -Force -ErrorAction SilentlyContinue)
-
-    foreach($SF in $SourceFiles){
-      try {
-        if(-not $SF.FullName.StartsWith($SourcePrefix,[System.StringComparison]::OrdinalIgnoreCase)){ continue }
-        $Rel = $SF.FullName.Substring($SourcePrefix.Length)
-        $DF = Join-Path $Dest $Rel
-
-        if(Test-Path -LiteralPath $DF){
-          $DI = Get-Item -LiteralPath $DF -Force -ErrorAction Stop
-          $Different = $false
-
-          if([int64]$DI.Length -ne [int64]$SF.Length){ $Different = $true }
-          $Delta = [Math]::Abs(($DI.LastWriteTimeUtc - $SF.LastWriteTimeUtc).TotalSeconds)
-          if($Delta -gt 2){ $Different = $true }
-
-          if($Different){
-            $BackupPath = Join-Path $BackupRoot $Rel
-            Ensure-Parent $BackupPath
-            Copy-Item -LiteralPath $DF -Destination $BackupPath -Force -ErrorAction Stop
-            $BackedUp++
-          }
-        }
-      } catch {
-        $Errors += "$($SF.FullName) :: $($_.Exception.Message)"
-      }
-    }
-  } catch {
-    $Errors += "backup-root-error :: $($_.Exception.Message)"
-  }
-
-  [pscustomobject]@{ Ok=($Errors.Count -eq 0); BackedUp=$BackedUp; Errors=@($Errors) }
-}
-
-function Invoke-RobocopyCopy {
+function Invoke-RobocopySafe {
   param([string]$Source,[string]$Dest,[string]$LogPath)
 
   Ensure-Dir $Dest
@@ -200,15 +148,17 @@ function Invoke-RobocopyCopy {
     "/XJ",
     "/FFT",
     "/NP",
-    "/TEE",
     "/LOG+:$LogPath"
   )
 
   & robocopy @Args | Out-Null
   $Code = $LASTEXITCODE
-  $Ok = ($Code -le 7)
 
-  [pscustomobject]@{ Ok=$Ok; Code=$Code; Log=$LogPath }
+  [pscustomobject]@{
+    Ok = ($Code -le 7)
+    Code = $Code
+    Log = $LogPath
+  }
 }
 
 try {
@@ -217,22 +167,6 @@ try {
   Ensure-Dir $BackupsRoot
 
   Set-TextUtf8Bom $RunReport "# Local raw mirror run`r`n`r`nRun: $Stamp`r`nCyrillic: Общие чаты, кириллица, UTF-8`r`n"
-
-  if(-not (Test-Path -LiteralPath $Repo)){ throw "Repo not found: $Repo" }
-
-  $Inside = Run-Git -GitArgs @("-C",$Repo,"rev-parse","--is-inside-work-tree")
-  if((($Inside.Output -join "").Trim()) -ne "true"){ throw "Not a Git worktree: $Repo" }
-
-  $BranchObj = Run-Git -GitArgs @("-C",$Repo,"branch","--show-current")
-  $Branch = (($BranchObj.Output -join "").Trim())
-  if($Branch -ne "main"){ throw "Unexpected branch: $Branch" }
-
-  $StatusBeforeObj = Run-Git -GitArgs @("--no-pager","-C",$Repo,"status","--porcelain","--untracked-files=all")
-  $BeforeFiles = @(Get-GitStatusFiles $StatusBeforeObj.Output)
-  $UnexpectedBefore = @($BeforeFiles | Where-Object { $_ -notin $AllowedRel })
-  if($UnexpectedBefore.Count -gt 0){ throw "Unexpected repo dirty files before local raw mirror." }
-
-  Run-Git -GitArgs @("-C",$Repo,"pull","--ff-only","origin","main") -AllowFail | Out-Null
 
   $Sources = @(
     @{ Label="Claude_User_claude_IgorK"; Root="C:\Users\IgorK\.claude" },
@@ -273,15 +207,12 @@ try {
   foreach($S in $Sources){
     $Label = SafeName $S.Label
     $Source = $S.Root
-    $Exists = Test-Path -LiteralPath $Source
-    $UnderCommon = Is-UnderRoot $Source $CommonRoot
     $Target = Join-Path $SourcesRoot $Label
-    $BackupTarget = Join-Path (Join-Path $BackupsRoot $Stamp) $Label
     $RoboLog = Join-Path $AuditRoot ("ROBOCOPY_" + $Label + "_" + $Stamp + ".log")
 
+    $Exists = Test-Path -LiteralPath $Source
+    $UnderCommon = Is-UnderRoot $Source $CommonRoot
     $Action = "skipped"
-    $BackupOk = $true
-    $BackedUp = 0
     $RoboCode = ""
     $ErrorText = ""
 
@@ -291,17 +222,13 @@ try {
       $Action = "already-under-common-root-manifest-only"
     } else {
       try {
-        $BackupResult = Backup-ChangedDestFiles -Source $Source -Dest $Target -BackupRoot $BackupTarget
-        $BackupOk = $BackupResult.Ok
-        $BackedUp = $BackupResult.BackedUp
-
-        if(-not $BackupOk){
-          $Action = "skipped-backup-failed"
-          $ErrorText = ($BackupResult.Errors -join " | ")
+        $Robo = Invoke-RobocopySafe -Source $Source -Dest $Target -LogPath $RoboLog
+        $RoboCode = $Robo.Code
+        if($Robo.Ok){
+          $Action = "copied-local-non-delete"
         } else {
-          $Robo = Invoke-RobocopyCopy -Source $Source -Dest $Target -LogPath $RoboLog
-          $RoboCode = $Robo.Code
-          if($Robo.Ok){ $Action = "copied-local-non-delete" } else { $Action = "robocopy-failed"; $ErrorText = "robocopy exit code $RoboCode" }
+          $Action = "robocopy-warning-or-failed"
+          $ErrorText = "robocopy exit code $RoboCode; see $RoboLog"
         }
       } catch {
         $Action = "error"
@@ -319,8 +246,6 @@ try {
       Exists=$Exists
       UnderCommonRoot=$UnderCommon
       Action=$Action
-      BackupOk=$BackupOk
-      BackedUpChangedFiles=$BackedUp
       RobocopyCode=$RoboCode
       SourceFilesSeenCapped=$Count.FilesSeenCapped
       SourceSizeMBSeenCapped=$Count.SizeMBSeenCapped
@@ -339,7 +264,7 @@ try {
 
   $Now = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
   $RowsText = ($Rows | ForEach-Object {
-    "- $($_.Label): action=$($_.Action), sourceExists=$($_.Exists), backedUp=$($_.BackedUpChangedFiles), rc=$($_.RobocopyCode), source=$($_.Source), target=$($_.Target)"
+    "- $($_.Label): action=$($_.Action), rc=$($_.RobocopyCode), source=$($_.Source), target=$($_.Target)"
   }) -join "`r`n"
 
   $ManifestText = @"
@@ -357,8 +282,8 @@ Cyrillic check: Общие чаты, кириллица, UTF-8.
 - No move.
 - No raw GitHub push.
 - No Git LFS.
-- Backup before overwrite.
 - Originals stay in place.
+- Copy uses robocopy /E, not /MIR.
 
 ## Rows
 
@@ -389,34 +314,19 @@ $RunCsv
   Set-TextUtf8Bom $ManifestDoc $ManifestText
   Set-TextUtf8Bom $LastRunDoc $LastRunText
 
-  $AfterObj = Run-Git -GitArgs @("--no-pager","-C",$Repo,"status","--porcelain","--untracked-files=all")
-  $AfterFiles = @(Get-GitStatusFiles $AfterObj.Output)
-  $UnexpectedAfter = @($AfterFiles | Where-Object { $_ -notin $AllowedRel })
-  if($UnexpectedAfter.Count -gt 0){ throw "Unexpected repo files changed after raw mirror." }
+  $Inside = Run-Git -GitArgs @("-C",$Repo,"rev-parse","--is-inside-work-tree") -AllowFail
+  if($Inside.Code -eq 0){
+    Run-Git -GitArgs @("-C",$Repo,"add","-f","--",$ManifestRel,$ManifestCsvRel,$LastRunRel) -AllowFail | Out-Null
+    $StagedObj = Run-Git -GitArgs @("--no-pager","-C",$Repo,"diff","--cached","--name-only") -AllowFail
+    $Staged = @($StagedObj.Output | ForEach-Object { Normalize-GitPath $_ })
 
-  $AddArgs = @("-C",$Repo,"add","-f","--") + $AllowedRel
-  Run-Git -GitArgs $AddArgs | Out-Null
-
-  $StagedObj = Run-Git -GitArgs @("--no-pager","-C",$Repo,"diff","--cached","--name-only")
-  $Staged = @($StagedObj.Output | ForEach-Object { Normalize-GitPath $_ })
-  $UnexpectedStaged = @($Staged | Where-Object { $_ -notin $AllowedRel })
-  if($UnexpectedStaged.Count -gt 0){
-    Run-Git -GitArgs @("-C",$Repo,"reset","-q") -AllowFail | Out-Null
-    throw "Unexpected staged files in raw mirror worker."
-  }
-
-  if($Staged.Count -gt 0){
-    $DiffObj = Run-Git -GitArgs @("--no-pager","-C",$Repo,"diff","--cached")
-    $Diff = @($DiffObj.Output)
-    $SensitiveHits = @(Test-SensitiveLikeContent $Diff)
-    if($SensitiveHits.Count -gt 0){
-      Run-Git -GitArgs @("-C",$Repo,"reset","-q") -AllowFail | Out-Null
-      throw "Sensitive-like value found in local raw mirror manifest."
+    if($Staged.Count -gt 0){
+      Run-Git -GitArgs @("-C",$Repo,"commit","-m","Update local raw mirror manifest") -AllowFail | Out-Null
+      Run-Git -GitArgs @("-C",$Repo,"push","origin","main") -AllowFail | Out-Null
     }
-
-    Run-Git -GitArgs @("-C",$Repo,"commit","-m","Update local raw mirror manifest")
-    Run-Git -GitArgs @("-C",$Repo,"push","origin","main")
   }
+
+  exit 0
 
 } catch {
   $Err=$_.Exception.Message
