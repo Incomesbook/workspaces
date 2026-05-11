@@ -1,6 +1,6 @@
 ﻿# Current Status Map
 
-Generated: 2026-05-11 06:52:22
+Generated: 2026-05-11 07:02:05
 
 ## Done
 
@@ -10,19 +10,19 @@ Generated: 2026-05-11 06:52:22
 - G01_All_About_Trading capsule exists.
 - G01_P03 is closed with completion checkpoint.
 - G01_P03 CleanSource is copied and registered in master workspace.
-- G01_P01 capsule exists.
-- G01_P01 large/private/chat manifest exists.
-- G01_P01 clean-source plan exists.
-- G01_P01 strict plan generator exists.
+- G01_P01 is closed with completion checkpoint.
 - G01_P01 CleanSource is copied and registered in master workspace.
+- G01_P02 capsule phase completed.
+- G01_P02 large/private/chat manifest created.
+- G01_P02 audit completed.
 
 ## Current latest phase
 
-G01_P01 CleanSource phase completed.
+G01_P02 capsule / manifest phase completed.
 
 ## Next
 
-- G01_P02_TradingView_Claude capsule
+- G01_P02 clean-source candidate audit
 - AI chat export confirmation
 - Git LFS / archive / encrypted backup strategy
 - weekly/biweekly sync
