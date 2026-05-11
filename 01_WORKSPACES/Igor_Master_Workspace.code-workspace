@@ -39,6 +39,10 @@
                     {
                         "name":  "G01_P03_MarketAgent_CleanSource",
                         "path":  "J:\\Setup_VcCode_Workspace\\S20_Projects\\G01_P03_MarketAgent_CleanSource"
+                    },
+                    {
+                        "name":  "G01_P01_PocketOption_CleanSource",
+                        "path":  "J:\\Setup_VcCode_Workspace\\S20_Projects\\G01_P01_PocketOption_CleanSource"
                     }
                 ],
     "settings":  {
